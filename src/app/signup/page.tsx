@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Mail, Lock, Eye, EyeOff, Sparkles } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
 
 export default function SignUpPage() {
   const router = useRouter();
@@ -22,10 +23,27 @@ export default function SignUpPage() {
 
     setLoading(true);
     
-    // Simulate API call
-    setTimeout(() => {
-      // Store user data (in real app, this would be API call)
+    try {
+      // Criar perfil no Supabase
+      const { data: profile, error } = await supabase
+        .from('user_profiles')
+        .insert({
+          email,
+          name: email.split('@')[0],
+          points: 0,
+          level: 1,
+          consecutive_days: 0
+        })
+        .select()
+        .single();
+
+      if (error) {
+        console.log('Erro ao criar perfil:', error);
+      }
+
+      // Store user data
       localStorage.setItem('hero_user', JSON.stringify({
+        id: profile?.id || '',
         email,
         language: 'pt',
         points: 0,
@@ -33,7 +51,19 @@ export default function SignUpPage() {
       }));
       
       router.push('/questionnaire');
-    }, 1500);
+    } catch (error) {
+      console.log('Erro:', error);
+      // Fallback para localStorage apenas
+      localStorage.setItem('hero_user', JSON.stringify({
+        email,
+        language: 'pt',
+        points: 0,
+        level: 1
+      }));
+      router.push('/questionnaire');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

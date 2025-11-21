@@ -1,12 +1,18 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { User, Globe, Bell, Shield, LogOut, ChevronRight } from 'lucide-react';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 export default function ProfilePage() {
+  const router = useRouter();
   const [language, setLanguage] = useState('pt');
   const [notifications, setNotifications] = useState(true);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const userStats = [
     { label: 'Dias Consecutivos', value: '7' },
@@ -15,15 +21,22 @@ export default function ProfilePage() {
     { label: 'Conquistas', value: '12/50' }
   ];
 
+  if (!mounted) {
+    return null;
+  }
+
   return (
     <div className="min-h-screen bg-[#0D0D0D] text-white">
       {/* Header */}
       <header className="border-b border-gray-800 bg-[#0D0D0D]/80 backdrop-blur-sm">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 py-4">
           <div className="flex items-center justify-between">
-            <Link href="/dashboard" className="text-gray-400 hover:text-white transition-colors">
+            <button 
+              onClick={() => router.push('/dashboard')}
+              className="text-gray-400 hover:text-white transition-colors"
+            >
               ← Voltar
-            </Link>
+            </button>
             <h1 className="text-xl font-bold">Perfil</h1>
             <div className="w-16" /> {/* Spacer */}
           </div>
@@ -106,13 +119,13 @@ export default function ProfilePage() {
               </div>
               <button
                 onClick={() => setNotifications(!notifications)}
-                className={`w-14 h-8 rounded-full transition-all ${
+                className={`relative w-14 h-8 rounded-full transition-all ${
                   notifications ? 'bg-[#00FF00]' : 'bg-gray-700'
                 }`}
               >
                 <div
-                  className={`w-6 h-6 rounded-full bg-white transition-all ${
-                    notifications ? 'translate-x-7' : 'translate-x-1'
+                  className={`absolute top-1 w-6 h-6 rounded-full bg-white transition-all ${
+                    notifications ? 'left-7' : 'left-1'
                   }`}
                 />
               </button>
@@ -139,7 +152,10 @@ export default function ProfilePage() {
           </div>
 
           {/* Logout */}
-          <button className="w-full bg-red-500/10 border-2 border-red-500/30 text-red-400 rounded-2xl p-4 hover:bg-red-500/20 transition-all flex items-center justify-center gap-2">
+          <button 
+            onClick={() => router.push('/')}
+            className="w-full bg-red-500/10 border-2 border-red-500/30 text-red-400 rounded-2xl p-4 hover:bg-red-500/20 transition-all flex items-center justify-center gap-2"
+          >
             <LogOut className="w-5 h-5" />
             Sair da Conta
           </button>
